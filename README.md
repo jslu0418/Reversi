@@ -1,2 +1,2 @@
 # Reversi
-A team project repostory for course Computer Architecture
+A team project repository for course Computer Architecture
