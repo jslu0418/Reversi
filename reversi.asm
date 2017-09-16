@@ -58,19 +58,19 @@ loop2:		sub  $t4, $t2, $t3
 		add  $t4, $t4, $t5
 		sw   $t4, ($t0)
 		addi $t0, $t0, 4
-		addi $t6, $t6, 1		
-nextnode:	addi $t2, $t2, 1
-		ble  $t2, 54, loop2
-		addi $t1, $t1, 1
-		ble  $t1, 54, loop1
+		addi $t6, $t6, 1
+nextnode:	addi $t2, $t2, 1                #increase the coordinate y
+		ble  $t2, 54, loop2             # back to loop2 if y <= 54
+		addi $t1, $t1, 1                #increase the coordinate x
+		ble  $t1, 54, loop1             # back to loop1 if x <= 54
 		sw   $t6, pixelsNum
 
 drawBoard:	lw   $s0, baseAddress
 		lw   $s1, baseOffset		#base offset.
 		lw   $s4, numOPIC		#load the num of squares in column.
 		addi $s1, $s1, 16384
-		
-drawRow:	lw   $s3, squareSize		#loop squareSize time, for draw continuous 55 row(the height of a square).		
+
+drawRow:	lw   $s3, squareSize		#loop squareSize time, for draw continuous 55 row(the height of a square).
 
 drawSquares:	lw   $s2, numOPIR		#loop numOPIR to control the time of drawASquare in every single row.
 		addi $s1, $s1, 32
@@ -89,13 +89,13 @@ drawRowInSquare:	add  $t2, $s0, $s1		#load the address which we are gonna fill a
 			addi $s3, $s3, -1
 			bgtz $s3, drawSquares		#back to drawSquares if a row of pixels has been drawn
 			addi $s4, $s4, -1
-			addi $s1, $s1, 16384		#addrIncOfRow, for the split between rows of squares(totalwidth*splitSize*bytesOfAWord).	
-			bgtz $s4, drawRow
+			addi $s1, $s1, 16384		#addrIncOfRow, for the split between rows of squares(totalwidth*splitSize*bytesOfAWord).
+			bgtz $s4, drawRow               #back to drawRow if didn't finish all rows of squares
 
 
-Main:		
+Main:
 #		li $t0, 1			#Test for fill all the squares
-#ploop1:	li $t1, 1			
+#ploop1:	li $t1, 1
 #ploop2:	jal	drawAWhitePiece
 #		addi $t1, $t1, 1
 #		ble  $t1, 8, ploop2
@@ -104,21 +104,21 @@ Main:
 		la $s1, piecesPoss		#store address of piecesPoss array in Main process.
 		li $t0, 4
 		li $t1, 4
-		jal drawABlackPiece
+		jal drawABlackPiece             #place black in 4,4
 		li $t1, 5
-		jal drawAWhitePiece
+		jal drawAWhitePiece             #place white in 4,5
 		li $t0, 5
-		jal drawABlackPiece
+		jal drawABlackPiece             #place black in 5,5
 		li $t1, 4
-		jal drawAWhitePiece
+		jal drawAWhitePiece             #place white in 5,4
 		li $t7, 64
 AutoPlayLoop:	li $t6, 1
-		jal checkNeighbours
-		jal calMaxProfit
+		jal checkNeighbours             #find all neighbours of specified color
+		jal calMaxProfit                #calculate max profit of all neighbours positions
 		lw $t0, maxProfitRow
 		lw $t1, maxProfitCol
-		jal oneStep
-		jal clearMaxProfit
+		jal oneStep                     #step in the subroutine to finish placing one piece on the board
+		jal clearMaxProfit              #erase the memory content which has been used during last calMaxProfit
 		li $t6, 0
 		jal checkNeighbours
 		jal calMaxProfit
@@ -149,36 +149,37 @@ checkNeighbours: 	li $s5, 0
 			li $s4, 0
 checkNeighbourLoop:	la $s1, piecesPoss
 			add $s1, $s1, $s5
-			lw $t0, ($s1)
+			lw $t0, ($s1)                   #$t6 is in-parameter of this subroutine. Check whether it is white or black then put corresponding value in $t0
 			beq  $t6, 1, checkNeighbourBlack
 			bne  $t0, 1, checkNeighbourFinish
 			b    checkNeighbourContinue
-checkNeighbourBlack:	bne  $t0, 0, checkNeighbourFinish			
+checkNeighbourBlack:	bne  $t0, 0, checkNeighbourFinish
+
 checkNeighbourContinue:	addi $t0, $s4, 9		#add fixed value,  cuz 1*8+1=9 and (1,1) is first element of array.
 			div $t0, $s3
 			mfhi $t1
 			mflo $t0
-			bnez $t1, checkNeighbourNormal
+			bnez $t1, checkNeighbourNormal  #if y is 0, use following two instruction to let y = 8 and x = x-1
 			li  $t1, 8
 			addi $t0, $t0, -1
-checkNeighbourNormal:	jal checkAround
+checkNeighbourNormal:	jal checkAround                 #invoke subroutine to find neighbour empty place of One specified piece.
 checkNeighbourFinish:	addi $s5, $s5, 4
 			addi $s2, $s2, -1
 			addi $s4, $s4, 1
 			bgtz $s2, checkNeighbourLoop
 			lw $ra, ($sp)
 			addi $sp, $sp, 4
-			jr $ra
+			jr $ra                          #quit from this subroutine
 
 
 # check empty neighbour around a piece
 # args in $t0, $t1 (rownum, colnum)
-checkAround:	la  $s1, piecesPoss 
+checkAround:	la  $s1, piecesPoss
 		addi $sp, $sp, -4
 		sw   $ra, ($sp)
 		move $t3, $t1
 		add $t2, $t0, 1			#x+1, y
-		jal checkASquare
+		jal checkASquare                #check square's status in ($t2, $t3)
 		add $t2, $t0, -1		#x-1, y
 		jal checkASquare
 		add $t3, $t1, 1			#x-1, y+1
@@ -195,9 +196,9 @@ checkAround:	la  $s1, piecesPoss
 		jal checkASquare
 		lw  $ra, ($sp)
 		addi $sp, $sp, 4
-		jr  $ra
+		jr  $ra                         #quit from this subroutine
 
-			
+
 # check if a square is empty
 # args in $t2, $t3 (rownum, colnum)
 checkASquare:	blt $t2, 1, checkFinish		#boundary check
@@ -223,32 +224,32 @@ checkFinish:	jr $ra
 calOneStep:		la   $s1, piecesPoss
 			addi $sp, $sp, -4
 			sw $ra, ($sp)
-			li   $s5, 0
+			li   $s5, 0                     # s5 save max profit
 			move $t2, $t0
 			move $t3, $t1
-#NorthWest
+#NorthWest                                              # Every direction's logic is similar with this.
 calNorthWest:		add $t2, $t0, -2
-			blez $t2, calWest
+			blez $t2, calWest               # x-2 < 0 means there is no enough space in North, jump tp West
 			add $t3, $t1, -2
-			blez $t3, calNorth
-			li  $t5, 0
+			blez $t3, calNorth              # y-2 < 0, cannot go West
+			li  $t5, 0                      # t5 store consecutive white pieces' number in this direction.
 			move $t2, $t0
 			move $t3, $t1
 calNorthWestLoop:	add $t2, $t2, -1
 			add $t3, $t3, -1
 			jal checkPieceColor
-			beq $t6, 1, calNorthWestBlack
-			beq $t4, 1, calNorthWestInc
-			beq $t4, 0, calNorthWestFinish
-			b   calWest
-calNorthWestBlack:	beq $t4, 0, calNorthWestInc
+			beq $t6, 1, calNorthWestBlack   # if current player is black, jump to calNorthWestBlack, cuz following 2 steps will assume current player is white
+			beq $t4, 1, calNorthWestInc     # current checking place is black, let $t5 = $t5 + 1 and forward in this direction
+			beq $t4, 0, calNorthWestFinish  # encounter a piece with same color with self. Need to finish this direction
+			b   calWest                     # if never encounter a piece with the color with self. This direction profit must be 0, go to next direction
+calNorthWestBlack:	beq $t4, 0, calNorthWestInc     # similar with above steps but treat self as black color
 			beq $t4, 1, calNorthWestFinish
-			b   calWest	
+			b   calWest
 calNorthWestInc:	addi $t5, $t5, 1
 			b   calNorthWestLoop
-calNorthWestFinish:	add $s5, $s5, $t5
+calNorthWestFinish:	add $s5, $s5, $t5               # add this direction's profit to Sum
 
-#West	
+#West
 calWest:		add $t3, $t1, -2
 			blez $t3, calNorth
 			li  $t5, 0
@@ -262,12 +263,12 @@ calWestLoop:		add $t3, $t3, -1
 			b   calNorth
 calWestBlack:		beq $t4, 0, calWestInc
 			beq $t4, 1, calWestFinish
-			b   calNorth	
+			b   calNorth
 calWestInc:		addi $t5, $t5, 1
 			b   calWestLoop
 calWestFinish:		add $s5, $s5, $t5
 
-#North		
+#North
 calNorth:		add $t2, $t0, -2
 			blez $t2, calSouthWest
 			li  $t5, 0
@@ -325,7 +326,7 @@ calSouthInc:		addi $t5, $t5, 1
 			b   calSouthLoop
 calSouthFinish:		add $s5, $s5, $t5
 
-#East		
+#East
 calEast:		add $t3, $t1, 2
 			bgt $t3, 8, calFinish
 			li  $t5, 0
@@ -364,7 +365,7 @@ calNorthEastInc:	addi $t5, $t5, 1
 			b   calNorthEastLoop
 calNorthEastFinish:	add $s5, $s5, $t5
 
-#SouthEast		
+#SouthEast
 calSouthEast:		add $t2, $t0, 2
 			bgt $t2, 8, calFinish
 			li  $t5, 0
@@ -387,10 +388,10 @@ calSouthEastFinish:	add $s5, $s5, $t5
 calFinish:		lw $ra, ($sp)
 			addi $sp, $sp, 4
 			jr $ra
-			
 
-# Calculate Max profit in single step. 
-#  As long as computer always represent White, 
+
+# Calculate Max profit in single step.
+#  As long as computer always represent White,
 #  this part we only consider self is white.
 #  Add situation which current player is black.
 
@@ -431,13 +432,14 @@ calMaxProfitFinish:	addi $s1, $s1, 4
 			addi $sp, $sp, 4
 			jr $ra
 
+# When there's no more steps, calculate two sides' num
 calNoStep:		lw $t0, maxPiecesNum
 			li $t1, 0
 			li $t2, 0
 			la $t3, piecesPoss
 calNumLoop:		lw $t4, ($t3)
 			beqz $t4, calNumWhiteInc
-			beq  $t4, 1 calNumBlackInc
+			beq  $t4, 1, calNumBlackInc
 			addi $t0, $t0, -1
 			addi $t3, $t3, 4
 			bgtz $t0, calNumLoop
@@ -465,11 +467,14 @@ calNoStepFinish:	la $a0, gameover
 			syscall
 			li $v0, 10
 			syscall
-			
+
+
+
+
 
 # args in $t2, $t3 (rownum, colnum), return $t4
 checkPieceColor:	li  $t4, -1
-			blez $t2, checkPieceColorFinish
+			blez $t2, checkPieceColorFinish         #boundary check
 			bgt $t2, 8, checkPieceColorFinish
 			blez $t3, checkPieceColorFinish
 			bgt $t3, 8, checkPieceColorFinish
@@ -480,7 +485,7 @@ checkPieceColor:	li  $t4, -1
 			add $t4, $t4, $s1
 			lw  $t4, ($t4)
 checkPieceColorFinish:	jr  $ra
-						
+
 
 # Draw a white piece on board
 # args in $t0, $t1 (rownum, colnum)
@@ -529,10 +534,12 @@ drawBlackPieceLoop:	lw  $t5, 0($t4)
 			sw  $s6, ($t6)
 			addi $t3, $t3, -1
 			bgtz $t3, drawBlackPieceLoop
-			mul  $t2, $t0, 8
-			add  $t2, $t2, $t1
-			addi $t2, $t2, -9
-			mul  $t2, $t2, 4
+			# mul  $t2, $t0, 8
+                        sll  $t2, $t0, 3
+	                add  $t2, $t2, $t1
+	                addi $t2, $t2, -9
+                        sll  $t2, $t2, 2
+			# mul  $t2, $t2, 4
 			la  $t3, piecesPoss
 			add $t2, $t2, $t3
 			li  $t3, 1
@@ -544,35 +551,36 @@ drawBlackPieceLoop:	lw  $t5, 0($t4)
 oneStep:           	addi $sp, $sp, -4
 			sw  $ra, ($sp)
 			move $s4, $t6
-			jal checkAvailable
-			beqz $s5, cannotPlace
-			bnez $s4, oneStepBlack1
-			jal drawAWhitePiece
-			b oneStepContinue1
+			jal checkAvailable              # check if this place is available for put a new piece. Also store the possible pieces which could be change color if put this new piece during this subroutine
+			beqz $s5, cannotPlace           # Profix is 0 means cannot place here.
+			bnez $s4, oneStepBlack1         # if current player is black, jump to black part
+			jal drawAWhitePiece             # else put a white piece here.
+			b oneStepContinue1              # go to the loop for change opponent's pieces which store in ($s2)
 oneStepBlack1:		jal drawABlackPiece
 oneStepContinue1:	la   $s2, waitPiecesPoss
 			li   $s3, 8
-oneStepReversiLoop:	lw  $t0, ($s2)
+oneStepReversiLoop:	lw  $t0, ($s2)                  # extract coordinate information from array's element
 			div $t0, $s3
 			mfhi $t1
 			mflo $t0
-			bnez $t1, oneStepNormal
+			bnez $t1, oneStepNormal         # deal with situation of y=0
 			li   $t1, 8
 			addi $t0, $t0, -1
 oneStepNormal:		bnez $s4, oneStepBlack2
 			jal drawAWhitePiece
 			b oneStepContinue2
-oneStepBlack2:		jal drawABlackPiece			
+oneStepBlack2:		jal drawABlackPiece
 oneStepContinue2:	addi $s2, $s2, 4
 			addi $s5, $s5, -1
-			bgtz $s5, oneStepReversiLoop
+			bgtz $s5, oneStepReversiLoop    # if the array is not empty, back to loop for change color.
 cannotPlace:		lw  $ra, ($sp)
 			addi $sp, $sp, 4
 			jr  $ra
 
 
-# This function is similar to calOneStep to great extent, but this plus a 
+# This function is similar to calOneStep to great extent, but this plus a
 # instruction sets to store the opponent pieces which possibly be changed.
+# $s2 is the array address of which is used to store this possible positions.
 # args in $t0, $t1, $t6 (rownum, colnum, color)
 # For every direction, Loop make sure there are consecutive black pieces in this direction.
 # return this step's profit in $s5.
@@ -612,7 +620,7 @@ checkNorthWestInc:	addi $t5, $t5, 1
 			b   checkNorthWestLoop
 checkNorthWestFinish:	add $s5, $s5, $t5
 
-#West	
+#West
 checkWest:		sw  $s2, waitPiecesPossPoint
 			add $t3, $t1, -2
 			blez $t3, checkNorth
@@ -638,7 +646,7 @@ checkWestInc:		addi $t5, $t5, 1
 			b   checkWestLoop
 checkWestFinish:	add $s5, $s5, $t5
 
-#North		
+#North
 checkNorth:		sw  $s2, waitPiecesPossPoint
 			add $t2, $t0, -2
 			blez $t2, checkSouthWest
@@ -717,7 +725,7 @@ checkSouthInc:		addi $t5, $t5, 1
 			b   checkSouthLoop
 checkSouthFinish:	add $s5, $s5, $t5
 
-#East		
+#East
 checkEast:		sw  $s2, waitPiecesPossPoint
 			add $t3, $t1, 2
 			bgt $t3, 8, checkAvailableFinish
@@ -770,7 +778,7 @@ checkNorthEastInc:	addi $t5, $t5, 1
 			b   checkNorthEastLoop
 checkNorthEastFinish:	add $s5, $s5, $t5
 
-#SouthEast		
+#SouthEast
 checkSouthEast:		sw  $s2, waitPiecesPossPoint
 			add $t2, $t0, 2
 			bgt $t2, 8, checkAvailableFinish
