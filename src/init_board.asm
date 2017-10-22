@@ -1,6 +1,11 @@
 # 'init_board.asm' defines the procedure that draw the initial board.
 #		.text
-init_board:	la   $t0, piecesPoss
+init_board:	addi $sp, $sp, -16
+		sw   $s1, 12($sp)
+		sw   $s2, 8($sp)
+		sw   $s3, 4($sp)
+		sw   $s4, ($sp)
+		la   $t0, piecesPoss
 		lw   $t1, maxPiecesNum
 		li   $t2, -1
 setInitColor:	sw   $t2, ($t0)			# -1
@@ -65,4 +70,9 @@ drawRowInSquare:add  $t2, $s0, $s1		#load the address which we are gonna fill a 
 		addi $s4, $s4, -1
 		addi $s1, $s1, 16384		#addrIncOfRow, for the split between rows of squares(totalwidth*splitSize*bytesOfAWord).
 		bgtz $s4, drawRow               #back to drawRow if didn't finish all rows of squares
+		lw   $s1, 12($sp)
+		lw   $s2, 8($sp)
+		lw   $s3, 4($sp)
+		lw   $s4, ($sp)
+		addi $sp, $sp, 16
 		jr   $ra			#back to main

@@ -11,28 +11,30 @@ Main:		jal init_board			#init the board.
 #		addi $t0, $t0, 1
 #		ble  $t0, 8, ploop1
 		la $s1, piecesPoss		#store address of piecesPoss array in Main process.
-		li $t0, 4
-		li $t1, 4
+		li $a0, 3
+		li $a1, 3
 		jal drawABlackPiece             #place black in 4,4
-		li $t1, 5
+		li $a1, 4
 		jal drawAWhitePiece             #place white in 4,5
-		li $t0, 5
+		li $a0, 4
 		jal drawABlackPiece             #place black in 5,5
-		li $t1, 4
+		li $a1, 3
 		jal drawAWhitePiece             #place white in 5,4
 		li $t7, 64
-AutoPlayLoop:	li $t6, 1
+		li $a2, 0
+		li $a3, 0		#initial $a3 to record if there was already one side have no more step
+AutoPlayLoop:	seq $a2, $a2, 0
 		jal checkNeighbours             #find all neighbours of specified color
 		jal calMaxProfit                #calculate max profit of all neighbours positions
-		lw $t0, maxProfitRow
-		lw $t1, maxProfitCol
+		lw $a0, maxProfitRow
+		lw $a1, maxProfitCol
 		jal oneStep                     #step in the subroutine to finish placing one piece on the board
 		jal clearMaxProfit              #erase the memory content which has been used during last calMaxProfit
-		li $t6, 0
+		seq $a2, $a2, 0
 		jal checkNeighbours
 		jal calMaxProfit
-		lw $t0, maxProfitRow
-		lw $t1, maxProfitCol
+		lw $a0, maxProfitRow
+		lw $a1, maxProfitCol
 		jal oneStep
 		jal clearMaxProfit
 		addi $t7, $t7, -1

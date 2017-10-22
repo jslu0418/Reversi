@@ -23,5 +23,7 @@ maxPiecesNum:	.word	64			#num of max pieces
 maxProfit:	.word   0			#store the max profit from calculation
 maxProfitRow:	.word	0
 maxProfitCol:	.word	0
+turntoblack:	.asciiz	"White has no more step, turn to Black\n"
+turntowhite:	.asciiz	"Black has no more step, turn to White\n"
 gameover:	.asciiz	"Game Over, Score is Black "
 score:		.asciiz " : White "
