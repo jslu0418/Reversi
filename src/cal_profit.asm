@@ -115,7 +115,7 @@ calSouthWestFinish:	add $s5, $s5, $t5
 
 #South
 calSouth:		add $t2, $t0, 1
-			bgt $t2, 8, calEast
+			bgt $t2, 6, calEast
 			li  $t5, 0
 			move $t2, $t0
 			move $t3, $t1
@@ -136,7 +136,7 @@ calSouthFinish:		add $s5, $s5, $t5
 
 #East
 calEast:		add $t3, $t1, 1
-			bgt $t3, 8, calFinish
+			bgt $t3, 6, calFinish
 			li  $t5, 0
 			move $t2, $t0
 			move $t3, $t1
@@ -179,7 +179,7 @@ calNorthEastFinish:	add $s5, $s5, $t5
 
 #SouthEast
 calSouthEast:		add $t2, $t0, 1
-			bgt $t2, 8, calFinish
+			bgt $t2, 6, calFinish
 			li  $t5, 0
 			move $t2, $t0
 			move $t3, $t1
