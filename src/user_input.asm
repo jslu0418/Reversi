@@ -1,45 +1,35 @@
-.data
-	promtRow:	.asciiz "Please enter a board loaction (starting with a lettter): "
 
-	invalidInput:	.asciiz "Invalid coordinates. please try again.\n"
-	
-	row:		.asciiz ""
-	column:		.word 0
-	
 	#Return values in v0 and v1. v0 = row. v1 = column
-.text
 
 	userInput:
+		addi $sp, $sp, -16
+		sw   $s0, 12($sp)
+		sw   $s1,  8($sp)
+		sw   $s2,  4($sp)
+		sw   $ra,  ($sp)
 		addi $s2, $0, 7			#NUMBER LIMIT FOR ROWS AND COLUMNS (0-7. 8 ROWS AND 8 COLUMNS) 
 		li $v0, 4
-		la $a0 promtRow
+		la $a0 promtCoor
 		syscall				#print row string
 		
-		la $a0, row			#save string in "number"
-		li $a1, 2			#limit user input to one letter
+		la $a0, coordinates		#save string in "coordinates"
+		li $a1, 3			#limit user input to one letter
 		li $v0, 8			
-		syscall				#promt user
-		
-		add $v0, $0,$0
+		syscall				#promt user (just the first two characters will be saved into row)
 
-		li $v0, 5
-		syscall				#promt user
-		sw $v0, column
-		
 		#inpuit validation
 		#column
-		lw $s1, column
-		addi $t0, $0, 8			#largest number the user can input
+		addi $t0, $0, 1
+		lb $s1, coordinates($t0)
+		addi $t0, $0, 56			#largest number the user can input
 		bgt $s1, $t0, badInput		#if user input > 8, then badInput
 		
-		addi $t0, $0, 1
+		addi $t0, $0, 49
 		blt $s1, $t0, badInput		#if userInput < 1, then bad input
-		addi $s1, $s1, -1		#user inout -1 (max 7)					################## (assuming we havent added the labels to the board) goes from 0 to 7
-		sw $s1, column
-		
+		addi $s1, $s1, -49		#user input -1 (max 7)
 		
 		#row
-		lw $s0, row			#load user input into t1
+		lb $s0, coordinates($0)		#load user input into s0
 		addi $t0, $0, 65
 		blt $s0, $t0, badInput		#if input < 65(A), invalid
 		
@@ -66,11 +56,11 @@
 		j userInput
 	
 	validateCoordinates:
-		#addi $s0, $s0, 1									################## (assuming we added the labels to the board) goes from 0 to 7
-		sw $s0, row				#store new integer value.
-		
-		
-		
+		#jal oneStep
 		add $v0, $s0, $0
 		add $v1, $s1, $0
-		#jr $ra	
+		lw   $s0, 12($sp)
+		lw   $s1,  8($sp)
+		lw   $s2,  4($sp)
+		lw   $ra,  ($sp)
+		jr $ra

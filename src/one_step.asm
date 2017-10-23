@@ -189,7 +189,7 @@ checkSouthWestFinish:	add $s5, $s5, $t5
 #South
 checkSouth:		sw  $s2, waitPiecesPossPoint
 			add $t2, $t0, 1
-			bgt $t2, 8, checkEast
+			bgt $t2, 6, checkEast
 			li  $t5, 0
 			move $t2, $t0
 			move $t3, $t1
@@ -217,7 +217,7 @@ checkSouthFinish:	add $s5, $s5, $t5
 #East
 checkEast:		sw  $s2, waitPiecesPossPoint
 			add $t3, $t1, 1
-			bgt $t3, 8, checkAvailableFinish
+			bgt $t3, 6, checkAvailableFinish
 			li  $t5, 0
 			move $t2, $t0
 			move $t3, $t1
@@ -244,7 +244,7 @@ checkEastFinish:	add $s5, $s5, $t5
 
 #NorthEast
 checkNorthEast:		sw  $s2, waitPiecesPossPoint
-			add $t2, $t0, -2
+			add $t2, $t0, -1
 			blez $t2, checkSouthEast
 			li  $t5, 0
 			move $t2, $t0
@@ -274,7 +274,7 @@ checkNorthEastFinish:	add $s5, $s5, $t5
 #SouthEast
 checkSouthEast:		sw  $s2, waitPiecesPossPoint
 			add $t2, $t0, 1
-			bgt $t2, 8, checkAvailableFinish
+			bgt $t2, 6, checkAvailableFinish
 			li  $t5, 0
 			move $t2, $t0
 			move $t3, $t1

@@ -26,17 +26,19 @@ Main:		jal init_board			#init the board.
 AutoPlayLoop:	seq $a2, $a2, 0
 		jal checkNeighbours             #find all neighbours of specified color
 		jal calMaxProfit                #calculate max profit of all neighbours positions
+		bne $a2, $zero, userTurn	#if $a2 = 1 userTurn
+		#user input
 		lw $a0, maxProfitRow
 		lw $a1, maxProfitCol
-		jal oneStep                     #step in the subroutine to finish placing one piece on the board
+		b  play
+		
+userTurn:	jal userInput
+		move $a0, $v0
+		move $a1, $v1
+play:		jal oneStep                     #step in the subroutine to finish placing one piece on the board
+		beqz $v0, userTurn
 		jal clearMaxProfit              #erase the memory content which has been used during last calMaxProfit
-		seq $a2, $a2, 0
-		jal checkNeighbours
-		jal calMaxProfit
-		lw $a0, maxProfitRow
-		lw $a1, maxProfitCol
-		jal oneStep
-		jal clearMaxProfit
+		
 		addi $t7, $t7, -1
 		bgtz $t7, AutoPlayLoop
 
@@ -48,4 +50,5 @@ return:		li $v0, 10			#syscall code of return
 		.include "./src/one_step.asm"
 		.include "./src/draw_pieces.asm"
 		.include "./src/check_around.asm"
+		.include "./src/user_input.asm"
 
