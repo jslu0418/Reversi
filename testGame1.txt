@@ -1,0 +1,93 @@
+Please enter a board loaction (starting with a letter): c59
+9
+
+Please enter a board loaction (starting with a letter): d3
+Please enter a board loaction (starting with a letter): c59
+9
+
+Please enter a board loaction (starting with a letter): d39
+9
+
+Please enter a board loaction (starting with a letter):
+Please enter a board loaction (starting with a letter): c5
+
+Please enter a board loaction (starting with a letter): c5
+
+
+Please enter a board loaction (starting with a letter): d3
+
+
+Please enter a board loaction (starting with a letter): a1
+
+Please enter a board loaction (starting with a letter): b5
+
+
+Please enter a board loaction (starting with a letter): a3
+
+
+Please enter a board loaction (starting with a letter): a5
+
+
+Please enter a board loaction (starting with a letter): a6
+
+
+Please enter a board loaction (starting with a letter): g5
+
+
+Please enter a board loaction (starting with a letter): f4
+
+
+Please enter a board loaction (starting with a letter): h6
+h
+Please enter a board loaction (starting with a letter): h4
+
+
+Please enter a board loaction (starting with a letter): f3
+
+
+Please enter a board loaction (starting with a letter): g4
+a
+Please enter a board loaction (starting with a letter): a2
+
+
+Please enter a board loaction (starting with a letter): c1
+a
+Please enter a board loaction (starting with a letter): 1
+
+Invalid coordinates. please try again.
+
+Please enter a board loaction (starting with a letter): a1
+e
+Please enter a board loaction (starting with a letter): e1
+f
+Please enter a board loaction (starting with a letter): f1
+h
+Please enter a board loaction (starting with a letter): h1
+
+
+Please enter a board loaction (starting with a letter): h3
+a
+Please enter a board loaction (starting with a letter): a7
+
+
+Please enter a board loaction (starting with a letter): h2
+a
+Please enter a board loaction (starting with a letter): a8
+
+
+Please enter a board loaction (starting with a letter): e6
+c
+Please enter a board loaction (starting with a letter): c8
+
+
+Please enter a board loaction (starting with a letter): g6
+
+
+Please enter a board loaction (starting with a letter): d8
+
+
+Please enter a board loaction (starting with a letter): f8
+
+White has no more step, turn to Black
+e
+Please enter a board loaction (starting with a letter):
