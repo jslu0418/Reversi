@@ -1,5 +1,11 @@
 # 'data_directive.asm' includes the pre-defined data directive codes.
 #		.data
+
+#user_input
+promtCoor:	.asciiz "\nPlease enter a board loaction (starting with a letter): "
+invalidInput:	.asciiz "\nInvalid coordinates. please try again.\n"
+coordinates:	.asciiz "YX"
+		.align   2	
 red:		.word	0x00FF0000
 yellow:		.word	0x00FFFF00
 black:		.word	0x00202020
@@ -23,5 +29,8 @@ maxPiecesNum:	.word	64			#num of max pieces
 maxProfit:	.word   0			#store the max profit from calculation
 maxProfitRow:	.word	0
 maxProfitCol:	.word	0
+turntoblack:	.asciiz	"White has no more step, turn to Black\n"
+turntowhite:	.asciiz	"Black has no more step, turn to White\n"
 gameover:	.asciiz	"Game Over, Score is Black "
 score:		.asciiz " : White "
+		.align 2
