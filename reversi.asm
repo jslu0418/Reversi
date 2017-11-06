@@ -32,7 +32,7 @@ AutoPlayLoop:	seq $a2, $a2, 0
 		lw $a1, maxProfitCol
 		b  play
 		
-userTurn:	jal userInput
+userTurn:	jal userInputStack
 		move $a0, $v0
 		move $a1, $v1
 play:		jal oneStep                     #step in the subroutine to finish placing one piece on the board
