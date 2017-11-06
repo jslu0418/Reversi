@@ -36,9 +36,18 @@ userTurn:	jal userInput
 		move $a0, $v0
 		move $a1, $v1
 play:		jal oneStep                     #step in the subroutine to finish placing one piece on the board
+		move $s2, $v0
+		move $s3, $a0
+		move $s4, $a1
+		la $a0, addrIncOfRow
+		li $a1, 1
+		li $v0, 8
+		syscall
+		move $v0, $s2
+		move $a0, $s3
+		move $a1, $s4
 		beqz $v0, userTurn
 		jal clearMaxProfit              #erase the memory content which has been used during last calMaxProfit
-		
 		addi $t7, $t7, -1
 		bgtz $t7, AutoPlayLoop
 

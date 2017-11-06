@@ -9,8 +9,13 @@
 # Check all empty neighbour of white pieces
 # args $a2 (color)
 checkNeighbours: 	li $s5, 0
-			addi $sp, $sp, -4
+			addi $sp, $sp, -24
 			sw $ra, ($sp)
+			sw $s1, 4($sp)
+			sw $s2, 8($sp)
+			sw $s3, 12($sp)
+			sw $s4, 16($sp)
+			sw $s5, 20($sp)
 			lw $s2, maxPiecesNum
 			li $s3, 8
 			li $s4, 0
@@ -35,7 +40,12 @@ checkNeighbourFinish:	addi $s5, $s5, 4
 			addi $s4, $s4, 1
 			bgtz $s2, checkNeighbourLoop
 			lw $ra, ($sp)
-			addi $sp, $sp, 4
+			lw $s1, 4($sp)
+			lw $s2, 8($sp)
+			lw $s3, 12($sp)
+			lw $s4, 16($sp)
+			lw $s5, 20($sp)
+			addi $sp, $sp, 24
 			jr $ra                          #quit from this subroutine
 
 
