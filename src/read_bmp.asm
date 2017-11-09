@@ -25,8 +25,8 @@ readandprintbmp: 	addi $sp, $sp, -36	# get space from stack
 			li $a2, 0		# unuseful code in Mars
 			syscall
 			add $s7, $zero, $v0	# get file descripter
-			sll $s4, $s4, 11	# change to base address for specified pos
-			add $s0, $s0, $s4	# add base address to specified pos to base address of bitmap display
+			sll $s5, $s5, 11	# change to base address for specified pos
+			add $s0, $s0, $s5	# add base address to specified pos to base address of bitmap display
 			li $v0, 14		# syscode for read file
 			add $a0, $zero, $s7	# set file descripter
 			la $a1, readbuffer	# set read buffer
