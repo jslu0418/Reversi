@@ -32,7 +32,7 @@ readandprintbmp: 	addi $sp, $sp, -36	# get space from stack
 			la $a1, readbuffer	# set read buffer
 			li $a2, 54		# skip for bmp header
 			syscall
-			add $t0, $zero, $s3	# bmp height for loop time
+			add $t4, $zero, $s3	# bmp height for loop time
 loop_row: 		la  $a1, readbuffer	# read buffer
 			add $a0, $zero, $s7	# filename
 			li $v0, 14		# syscode for reading file
@@ -40,29 +40,29 @@ loop_row: 		la  $a1, readbuffer	# read buffer
 			sub $a2, $a2, $s2	# a2 = s2 * 3 (byte size for pixels in a row of bmp file)
 			#addi $a2, $a2, 1	# this is for b&w graph
 			syscall
-			sll $t1, $s2, 2		# t1 = s2 * 4 set for inner loop times
-			sub $t1, $t1, $s2 	# t1 = s2 * 3 (byte size for pixels in a row) array index
-			li  $t2, 0		# inner loop counter
-			addi $t3, $t0, -1	# after a loop row num = row num - 1 draw in reversed order
-			sll $t3, $t3, 11	# t3 = t3 * 2048 (byte size for pixel in a total row
-			add $s1, $s0, $t3	# adjust base offset
-			sll $t3, $s6, 2		# t3 = col num * 4, get position in a row
-			add $s1, $s1, $t3	# adjust base offset
-loop_col: 		lbu $t4, readbuffer($t2)# read one byte color
-			addi $t2, $t2, 1	# inc
-			lbu $t5, readbuffer($t2)# read one byte color
-			addi $t2, $t2, 1	# inc
-			lbu $t6, readbuffer($t2)# read one byte color		
-			sll $t5, $t5, 8		# shift 1 byte
-			or  $t4, $t4, $t5	# concat
-			sll $t6, $t6, 16	# shift 2 byte
-			or  $t4, $t4, $t6	# concat
-			sw $t4, ($s1)		# write to bitmap display
+			sll $t5, $s2, 2		# t5 = s2 * 4 set for inner loop times
+			sub $t5, $t5, $s2 	# t5 = s2 * 3 (byte size for pixels in a row) array index
+			li  $t6, 0		# inner loop counter
+			addi $t7, $t4, -1	# after a loop row num = row num - 1 draw in reversed order
+			sll $t7, $t7, 11	# t7 = t7 * 2048 (byte size for pixel in a total row
+			add $s1, $s0, $t7	# adjust base offset
+			sll $t7, $s6, 2		# t7 = col num * 4, get position in a row
+			add $s1, $s1, $t7	# adjust base offset
+loop_col: 		lbu $t0, readbuffer($t6)# read one byte color
+			addi $t6, $t6, 1	# inc
+			lbu $t1, readbuffer($t6)# read one byte color
+			addi $t6, $t6, 1	# inc
+			lbu $t2, readbuffer($t6)# read one byte color
+			sll $t1, $t1, 8		# shift 1 byte
+			or  $t0, $t0, $t1	# concat
+			sll $t2, $t2, 16	# shift 2 byte
+			or  $t0, $t0, $t2	# concat
+			sw $t0, ($s1)		# write to bitmap display
 			add $s1, $s1, 4		# adjust base offset to next pixel
-			addi $t2, $t2, 1	# inc counter
-			bne $t2, $t1, loop_col	# if not finish one row back to loop
-			addi $t0, $t0, -1	# dec row counter
-			bne $t0, $zero, loop_row	# if not finish total back to loop
+			addi $t6, $t6, 1	# inc counter
+			bne $t6, $t5, loop_col	# if not finish one row back to loop
+			addi $t4, $t4, -1	# dec row counter
+			bne $zero, $t4, loop_row	# if not finish total back to loop
 			move $a0, $s7			# file descripter
 			li $v0, 16			# close file syscode
 			syscall				# close file
