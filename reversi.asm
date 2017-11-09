@@ -60,4 +60,4 @@ return:		li $v0, 10			#syscall code of return
 		.include "./src/draw_pieces.asm"
 		.include "./src/check_around.asm"
 		.include "./src/user_input.asm"
-
+		.include "./src/read_bmp.asm"
