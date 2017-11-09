@@ -22,7 +22,7 @@ Main:		jal init_board			# init the board.
 		li $a1, 3
 		jal drawAWhitePiece             # place white in 5,4
 		li $t7, 64
-		li $a2, 0
+		li $a2, 0                       # initial a2 for white (0) since Autoplayloop will change color at first
 		li $a3, 0		        # initial $a3 to record if there was already one side have no more step
 AutoPlayLoop:	seq $a2, $a2, 0
 		jal checkNeighbours             # find all neighbours of specified color
@@ -40,7 +40,7 @@ play:		jal oneStep                     # step in the subroutine to finish placin
 		move $s2, $v0
 		move $s3, $a0
 		move $s4, $a1
-		la $a0, addrIncOfRow
+		la $a0, addrIncOfRow            # no use, just a label for syscall
 		li $a1, 1
 		li $v0, 8
 		syscall

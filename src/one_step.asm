@@ -24,7 +24,8 @@ oneStep:		addi $sp, $sp, -24
 			lw   $a1, 0($sp)
 			addi $sp, $sp, 8
 			beqz $v0, cannotPlace           # Profix is 0 means cannot place here.
-			move $s5, $v0			# the profix from checkAvailable
+	                move $s5, $v0			# the profix from checkAvailable
+                        move $s1, $v0                   # save $v0
 			bnez $s4, oneStepBlack1         # if current player is black, jump to black part
 			jal drawAWhitePiece             # else put a white piece here.
 			b oneStepContinue1              # go to the loop for change opponent's pieces which store in ($s2)
@@ -42,13 +43,14 @@ oneStepBlack2:		jal drawABlackPiece
 oneStepContinue2:	addi $s2, $s2, 4
 			addi $s5, $s5, -1
 			bgtz $s5, oneStepReversiLoop    # if the array is not empty, back to loop for change color.
+                        move $v0, $s1                   # restore v0
 cannotPlace:		lw   $s1, 20($sp)
 			lw   $s2, 16($sp)
 			lw   $s3, 12($sp)
 			lw   $s4, 8($sp)
 			lw   $s5, 4($sp)
 			lw   $ra, ($sp)
-			addi $sp, $sp, 24
+	                addi $sp, $sp, 24
 			jr  $ra
 
 

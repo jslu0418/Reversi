@@ -62,5 +62,6 @@
 		lw   $s0, 12($sp)
 		lw   $s1,  8($sp)
 		lw   $s2,  4($sp)
-		lw   $ra,  ($sp)
+	        lw   $ra,  ($sp)
+                addi $sp, $sp, 16               # restore stack pointer
 		jr $ra	
