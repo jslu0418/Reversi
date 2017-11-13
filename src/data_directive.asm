@@ -2,9 +2,20 @@
 #		.data
 
 #user_input
-promtCoor:	.asciiz "\nPlease enter a board loaction (starting with a letter): "
+newLine:	.asciiz "\n"
+promtCoor:	.asciiz "\nPlease enter a board coordinate (starting with a letter): "
 invalidInput:	.asciiz "\nInvalid coordinates. please try again.\n"
 coordinates:	.asciiz "YX"
+AIMoveMsg:
+		.asciiz "\nAI's last move was: "
+userMoveMsg:	
+		.asciiz "\nYour last move was: "
+illegalMoveOccupiedMsg:
+		.asciiz "\nIllegal move. The chosen coordinate is occupied. Please retry.\n"		
+illegalMoveNoProfitMsg:
+		.asciiz "\nIllegal move. The chosen coordinate will not flip any piece. You must move to flip at least one piece when flippable piece(s) exists.\n"
+		
+		
 		.align   2
 red:		.word	0x00FF0000
 yellow:		.word	0x00C75B12
