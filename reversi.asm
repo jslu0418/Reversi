@@ -27,30 +27,46 @@ Main:		jal init_board			# init the board.
 AutoPlayLoop:	seq $a2, $a2, 0
 		jal checkNeighbours             # find all neighbours of specified color
 		jal calMaxProfit                # calculate max profit of all neighbours positions
-		bne $a2, $zero, userTurn	# if $a2 = 1 userTurn
-		#user input
+		bne $a2, $zero, userTurn	# if $a2 != 0 (== 1) userTurn
+		# user input
 		lw $a0, maxProfitRow
 		lw $a1, maxProfitCol
-		b  play
 
-userTurn:	jal userInputStack
-		move $a0, $v0
-		move $a1, $v1
-play:		jal oneStep                     # step in the subroutine to finish placing one piece on the board
-		move $s2, $v0
-		move $s3, $a0
-		move $s4, $a1
-		la $a0, addrIncOfRow            # no use, just a label for syscall
-		li $a1, 1
-		li $v0, 8
+		# Show AI last move
+		move	$t0, $a0			# temporarily save $a0, $a1 and $v0
+		move	$t1, $v0
+		move	$t2, $a1		
+		li	$v0, 4
+		la	$a0, AIMoveMsg
 		syscall
-		move $v0, $s2
-		move $a0, $s3
-		move $a1, $s4
-		beqz $v0, userTurn
-		jal clearMaxProfit              # erase the memory content which has been used during last calMaxProfit
-		addi $t7, $t7, -1
-		bgtz $t7, AutoPlayLoop
+		
+		li	$v0, 11
+		addi	$a0, $t0, 65			# change row number to character's ascii value (A~H)
+		syscall
+		addi	$a0, $t2, 49			# change col number to digit's ascii value
+		syscall
+		
+		li	$v0, 4
+		la	$a0, newLine
+		syscall
+		
+		move	$a0, $t0
+		move	$v0, $t1			# restore $a0, $a1 and $v0
+		move	$a1, $t2		
+		
+		b	play
+
+userTurn:	jal	userInputStack
+		move	$a0, $v0
+		move	$a1, $v1
+play:		jal	oneStep                     	# step in the subroutine to finish placing one piece on the board
+
+		blt	$v0, $0, userTurn		# illegal move, return to user turn
+		beqz	$v0, userTurn
+		
+		jal	clearMaxProfit              	# erase the memory content which has been used during last calMaxProfit
+		addi	$t7, $t7, -1
+		bgtz	$t7, AutoPlayLoop
 
 return:		li $v0, 10			# syscall code of return
 		syscall				# return
