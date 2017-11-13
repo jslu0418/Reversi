@@ -7,7 +7,7 @@
 clearMaxProfit:	li $t6, 0
 		sw $t6, maxProfit
 		sw $t6, maxProfitRow
-		sw $t6, maxProfitRow
+		sw $t6, maxProfitCol
 		jr $ra
 	
 
@@ -33,8 +33,8 @@ calNorthWest:		add $t2, $t0, -1
 			li  $t5, 0                      # t5 store consecutive white pieces' number in this direction.
 			move $t2, $t0
 			move $t3, $t1
-calNorthWestLoop:	add $t2, $t2, 0
-			add $t3, $t3, 0
+calNorthWestLoop:	add $t2, $t2, -1                # Modify at Nov.9.2017, fixed check error
+			add $t3, $t3, -1                # Modify at Nov.9.2017, fixed check error
 			move $a0, $t2
 			move $a1, $t3
 			jal checkPieceColor
@@ -212,106 +212,107 @@ calFinish:		move $v0, $s5
 #  this part we only consider self is white.
 #  Add situation which current player is black.
 
-calMaxProfit:		addi $sp, $sp, -24
-			sw   $s1, 20($sp)
-			sw   $s2, 16($sp)
-			sw   $s3, 12($sp)
-			sw   $s4, 8($sp)
-			sw   $s5, 4($sp)
-			sw   $ra, ($sp)
-			la  $s1, piecesPoss
-			lw  $s2, maxPiecesNum
-			li  $s3, 8
-			li  $s4, 0
-calMaxProfitLoop:	lw  $t0, ($s1)
-			bne  $t0, 2, calMaxProfitFinish
-			li   $t0, -1
-			sw   $t0, ($s1)			#restore the element value to -1 (empty)
-			addi $t0, $s4, 0		#add fixed value,  cuz 1*8+1=9 and (1,1) is first element of array.
-			div $t0, $s3
-			mfhi $a1			#extract quotient(num of row to $t0)
-			mflo $a0			#extract remainer(num of col to $t0)
-			#li   $t1, 8
-			#addi $t0, $t0, -1
-calMaxProfitNormal:	jal calOneStep
-			lw   $t2, maxProfit
-			ble  $v0, $t2, calMaxProfitFinish
-			sw   $v0, maxProfit
-			sw   $t0, maxProfitRow
-			sw   $t1, maxProfitCol
-calMaxProfitFinish:	addi $s1, $s1, 4
-			addi $s2, $s2, -1
-			addi $s4, $s4, 1
-			bgtz $s2, calMaxProfitLoop
-			lw   $v0, maxProfit
-			bnez $v0, calReturn
+calMaxProfit:		addi $sp, $sp, -24              # create space
+			sw   $s1, 20($sp)               # store registers
+			sw   $s2, 16($sp)               # store registers
+			sw   $s3, 12($sp)               # store registers
+			sw   $s4, 8($sp)                # store registers
+			sw   $s5, 4($sp)                # store registers
+			sw   $ra, ($sp)                 # store registers
+			la  $s1, piecesPoss             # address of positions array
+			lw  $s2, maxPiecesNum           # 64
+			li  $s3, 8                      # divider
+			li  $s4, 0                      # i of array[i]
+calMaxProfitLoop:	lw  $t0, ($s1)                  # load color
+			bne  $t0, 2, calMaxProfitFinish # if not 2, not a potential move
+			li   $t0, -1                    # reset color to -1
+			sw   $t0, ($s1)			# restore the element value to -1 (empty)
+			addi $t0, $s4, 0		# add fixed value,  cuz 1*8+1=9 and (1,1) is first element of array.
+			div $t0, $s3                    # divide
+			mfhi $a1			# extract quotient(num of row to $t0)
+			mflo $a0			# extract remainer(num of col to $t0)
+			#li   $t1, 8                    # obsoleted function
+			#addi $t0, $t0, -1              # obsoleted function
+calMaxProfitNormal:	jal calOneStep                  # invoke function to calculate one potential step's profit
+			lw   $t2, maxProfit             # load maxProfix till now
+			ble  $v0, $t2, calMaxProfitFinish       # check if this step's profix is bigger or less than maxprofit
+			sw   $v0, maxProfit             # if bigger save
+			sw   $t0, maxProfitRow          # save this step's row num
+			sw   $t1, maxProfitCol          # save this step's col num
+calMaxProfitFinish:	addi $s1, $s1, 4                # move to next potential move
+			addi $s2, $s2, -1               # dec counter
+			addi $s4, $s4, 1                # inc counter
+			bgtz $s2, calMaxProfitLoop      # if has more potential move go back to loop
+			lw   $v0, maxProfit             # lw maxProfit of all potential move
+			bnez $v0, calReturn             # if maxProfix != 0, return, else, go to handle no more step's scenario.
 
 # When there's no more steps, calculate two sides' num
-calNoStep:		lw $t0, maxPiecesNum
-			li $t1, 0
-			li $t2, 0
-			la $t3, piecesPoss
-calNumLoop:		lw $t4, ($t3)
-			beqz $t4, calNumWhiteInc
-			beq  $t4, 1, calNumBlackInc
-			addi $t0, $t0, -1
-			addi $t3, $t3, 4
-			bgtz $t0, calNumLoop
-			b    calNoStepFinish
-calNumBlackInc:		addi $t1, $t1, 1
-			addi $t0, $t0, -1
-			addi $t3, $t3, 4
-			bgtz $t0, calNumLoop
-			b    calNoStepFinish
-calNumWhiteInc:		addi $t2, $t2, 1
-			addi $t0, $t0, -1
-			addi $t3, $t3, 4
-			bgtz $t0, calNumLoop
-calNoStepFinish:	add  $t0, $t1, $t2
-			beq  $t0, 64, calGameOver
-calTurnToOppo:		bnez $a3, calGameOver
-			jal  turnToOppo	
-			beqz $a2, turnBlack
-			la $a0, turntowhite
-			li $v0, 4
-			syscall
-			b  calReturn
-turnBlack:		la $a0, turntoblack
-			li $v0, 4
-			syscall
-			b  calReturn
-calGameOver:		la $a0, gameover
-			li $v0, 4
-			syscall
-			move $a0, $t1
-			li $v0, 1
-			syscall
-			la $a0, score
-			li $v0, 4
-			syscall
-			move $a0, $t2
-			li $v0, 1
-			syscall
-			li $v0, 10
-			syscall
-	
-calReturn:		lw   $s1, 20($sp)
-			lw   $s2, 16($sp)
-			lw   $s3, 12($sp)
-			lw   $s4, 8($sp)
-			lw   $s5, 4($sp)
-			lw   $ra, ($sp)
-			addi $sp, $sp, 24
-			jr $ra
+calNoStep:		lw $t0, maxPiecesNum            # load 64 into t0
+			li $t1, 0                       # initial t1 for black count
+			li $t2, 0                       # initial t2 for white count
+			la $t3, piecesPoss              # pieces position array address
+calNumLoop:		lw $t4, ($t3)                   # load one piece's color
+			beqz $t4, calNumWhiteInc        # color = zero, white. else check if it is black
+			beq  $t4, 1, calNumBlackInc     # if color = one, black
+			addi $t0, $t0, -1               # dec counter
+			addi $t3, $t3, 4                # inc array pointer
+			bgtz $t0, calNumLoop            # check if loop end
+			b    calNoStepFinish            # end of calNoStep
+calNumBlackInc:		addi $t1, $t1, 1                # inc number of black
+			addi $t0, $t0, -1               # dec counter
+			addi $t3, $t3, 4                # inc array pointer
+			bgtz $t0, calNumLoop            # check if loop end
+			b    calNoStepFinish            # end of calNoStep
+calNumWhiteInc:		addi $t2, $t2, 1                # inc number of white
+			addi $t0, $t0, -1               # dec counter
+			addi $t3, $t3, 4                # inc array pointer
+			bgtz $t0, calNumLoop            # check if loop end
+calNoStepFinish:	add  $t0, $t1, $t2              # get total number of pieces
+			beq  $t0, 64, calGameOver       # check if board is full
+calTurnToOppo:		bnez $a3, calGameOver           # if a3 is not zero, means before another side has no nore step already.
+			jal  turnToOppo                 # else go to opponent side
+			beqz $a2, turnBlack             # if now is white, turn o black
+			la $a0, turntowhite             # else turntowhite
+			li $v0, 4                       # print
+			syscall                         # print
+			b  calReturn                    # return
+turnBlack:		la $a0, turntoblack             # turntoblack
+			li $v0, 4                       # print
+			syscall                         # print
+			b  calReturn                    # return
+calGameOver:		la $a0, gameover                # gameover information
+			li $v0, 4                       # print
+			syscall                         # print
+			move $a0, $t1                   # number of black
+			li $v0, 1                       # print
+			syscall                         # print
+			la $a0, score                   # "vs"
+			li $v0, 4                       # print
+			syscall                         # print
+			move $a0, $t2                   # number of white
+			li $v0, 1                       # print
+			syscall                         # print
+			li $v0, 10                      # exit program
+			syscall                         # exit program
+
+calReturn:		lw   $s1, 20($sp)               # restore registers
+			lw   $s2, 16($sp)               # restore registers
+			lw   $s3, 12($sp)               # restore registers
+			lw   $s4, 8($sp)                # restore registers
+			lw   $s5, 4($sp)                # restore registers
+			lw   $ra, ($sp)                 # restore registers
+			addi $sp, $sp, 24               # restore stack poiner
+			jr $ra                          # retur to main
 
 # set a3 to -1. Then calculate other side's maxprofit.
-turnToOppo:		li  $a3, -1
-			seq $a2, $a2, 0
-			addi $sp, $sp, -4
-			sw   $ra, ($sp)
-			jal checkNeighbours
-			jal calMaxProfit
-			lw   $ra, ($sp)
-			addi $sp, $sp, 4
-			li  $a3, 0
-			jr  $ra
+turnToOppo:		li  $a3, -1                     # set a3 to -1, means already has one with no more step
+			seq $a2, $a2, 0                 # change color
+			addi $sp, $sp, -4               # create space
+	                sw   $ra, ($sp)                 # store $ra
+                        jal clearMaxProfit              # reset
+			jal checkNeighbours             # check potential
+			jal calMaxProfit                # calmaxprofix
+			lw   $ra, ($sp)                 # restore $ra
+			addi $sp, $sp, 4                # restore stack poiner
+			li  $a3, 0                      # restore $a3 to zero
+			jr  $ra                         # return to main

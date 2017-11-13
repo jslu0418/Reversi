@@ -1,12 +1,13 @@
 
 	#Return values in v0 and v1. v0 = row. v1 = column
 
-	userInput:
+	userInputStack:
 		addi $sp, $sp, -16
 		sw   $s0, 12($sp)
 		sw   $s1,  8($sp)
 		sw   $s2,  4($sp)
 		sw   $ra,  ($sp)
+	userInput:
 		addi $s2, $0, 7			#NUMBER LIMIT FOR ROWS AND COLUMNS (0-7. 8 ROWS AND 8 COLUMNS) 
 		li $v0, 4
 		la $a0 promtCoor
@@ -53,14 +54,14 @@
 		li $v0, 4
 		la $a0 invalidInput
 		syscall
-		j userInput
+		b userInput
 	
 	validateCoordinates:
-		#jal oneStep
 		add $v0, $s0, $0
 		add $v1, $s1, $0
 		lw   $s0, 12($sp)
 		lw   $s1,  8($sp)
 		lw   $s2,  4($sp)
-		lw   $ra,  ($sp)
-		jr $ra
+	        lw   $ra,  ($sp)
+                addi $sp, $sp, 16               # restore stack pointer
+		jr $ra	
