@@ -104,9 +104,9 @@ checkFinish:	jr $ra
 # args in $a0, $a1 (rownum, colnum), return $v0
 checkPieceColor:	li  $v0, -1
 			bltz $a0, checkPieceColorFinish         #boundary check
-			bgt $a0, 8, checkPieceColorFinish
+			bgt $a0, 7, checkPieceColorFinish
 			bltz $a1, checkPieceColorFinish
-			bgt $a1, 8, checkPieceColorFinish
+			bgt $a1, 7, checkPieceColorFinish
 			sll $a0, $a0, 3
 			add $a0, $a0, $a1
 			#addi $t4, $t4, -9
