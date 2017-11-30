@@ -3,14 +3,12 @@
 #		.include "./src/data_directive.asm" # on my mac
 
 		.text
-Main:		jal init_board			# init the board.
-#		li $t0, 1			# Test for fill all the squares
-#ploop1:	li $t1, 1
-#ploop2:	jal	drawAWhitePiece
-#		addi $t1, $t1, 1
-#		ble  $t1, 8, ploop2
-#		addi $t0, $t0, 1
-#		ble  $t0, 8, ploop1
+Main:		li $v0, 4
+		la $a0, WelcomeMsg
+		syscall
+		move $v0, $zero
+		move $a0, $zero
+		jal init_board			# init the board.
 		la $s1, piecesPoss		# store address of piecesPoss array in Main process.
 		li $a0, 3
 		li $a1, 3

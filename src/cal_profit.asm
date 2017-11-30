@@ -269,14 +269,18 @@ calNumWhiteInc:		addi $t2, $t2, 1                # inc number of white
 			bgtz $t0, calNumLoop            # check if loop end
 calNoStepFinish:	add  $t0, $t1, $t2              # get total number of pieces
 			beq  $t0, 64, calGameOver       # check if board is full
-calTurnToOppo:		bnez $a3, calGameOver           # if a3 is not zero, means before another side has no nore step already.
-			jal  turnToOppo                 # else go to opponent side
-			beqz $a2, turnBlack             # if now is white, turn o black
-			la $a0, turntowhite             # else turntowhite
+calTurnToOppo:		beqz $a3, switchTurn		# if a3 is not zero, means before another side has no nore step already.
+			li   $v0, 4
+			la   $a0, endEarly
+			syscall
+			j calGameOver
+switchTurn:		jal  turnToOppo                 # else go to opponent side
+			beqz $a2, turnWhite             # if now is black, turn to white
+			la $a0, turntoblack             # else turntoblack
 			li $v0, 4                       # print
 			syscall                         # print
 			b  calReturn                    # return
-turnBlack:		la $a0, turntoblack             # turntoblack
+turnWhite:		la $a0, turntowhite             # turntowhite
 			li $v0, 4                       # print
 			syscall                         # print
 			b  calReturn                    # return
@@ -292,7 +296,18 @@ calGameOver:		la $a0, gameover                # gameover information
 			move $a0, $t2                   # number of white
 			li $v0, 1                       # print
 			syscall                         # print
-			li $v0, 10                      # exit program
+			li $v0, 4
+			beq $t1, $t2, tiedGame
+			blt $t2, $t1, blackWin
+			la $a0, compWin
+			syscall
+			j exitProgram
+blackWin:		la $a0, userWin
+			syscall
+			j exitProgram
+tiedGame:		la $a0, tie
+			syscall
+exitProgram:		li $v0, 10                      # exit program
 			syscall                         # exit program
 
 calReturn:		lw   $s1, 20($sp)               # restore registers
